@@ -1,0 +1,98 @@
+package com.kturker.multiplatform
+
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.kturker.multiplatform.core.designsystem.language.LocalStringResources
+import com.kturker.multiplatform.core.image.ImageLoaderSetup
+import com.kturker.multiplatform.core.multilang.language.LanguageManager
+import com.kturker.multiplatform.core.navigation.FeatureEntry
+import com.kturker.multiplatform.core.navigation.NavGraphProvider
+import com.kturker.multiplatform.core.navigation.NavigationManager
+import com.kturker.multiplatform.core.review.ReviewRequestEffect
+import com.kturker.multiplatform.core.update.AppUpdateEffect
+import com.kturker.multiplatform.feature.monetization.presentation.paywall.FirstLaunchPaywall
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
+
+/**
+ * The app's root, inside the app theme (AppTheme.kt): a guide screen listing the feature modules,
+ * then each module's screens.
+ * When you are ready, change startDestination to your own first screen and delete GuideScreen.kt.
+ */
+@Composable
+fun MainScreen(
+    languageManager: LanguageManager = koinInject(),
+    navigationManager: NavigationManager = koinInject()
+) {
+    // Coil's one image loader (core/image): caches, and Kermit logs in debug builds
+    ImageLoaderSetup()
+
+    val navController = rememberNavController()
+    val uriHandler = LocalUriHandler.current
+
+    val koin = getKoin()
+    val providers = remember(koin) { koin.getAll<NavGraphProvider>() }
+    val entries = remember(koin) { koin.getAll<FeatureEntry>().sortedBy { it.title } }
+
+    // The app's strings (LocalStringResources.current.<key>): the device language, or the saved choice
+    val resources by languageManager.currentResources.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        languageManager.setSystemLanguage()
+    }
+
+    AppTheme {
+        CompositionLocalProvider(LocalStringResources provides resources) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = { OfflineBanner(text = "No connection") },
+                content = { paddingValues ->
+                    NavHost(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .consumeWindowInsets(paddingValues),
+                        navController = navController,
+                        startDestination = GuideDestination
+                    ) {
+                        composable<GuideDestination> {
+                            GuideScreen(
+                                entries = entries,
+                                onEntryClick = { entry -> navigationManager.navigate(entry.destination) },
+                                onDocumentationClick = { uriHandler.openUri("https://cmpose.dev/guide.html") }
+                            )
+                        }
+                        providers.forEach {
+                            it.registerGraph(provider = this)
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    NavigationLaunchedEffect(
+        navigationManager = navigationManager,
+        navController = navController
+    )
+
+    // Passes ReviewPrompter's requests (a positive moment, "Rate the app") to the platform
+    ReviewRequestEffect()
+
+    // Update available / required (core/update): at most one check a day
+    AppUpdateEffect()
+    // FirstLaunchPaywall (purchases): the paywall once, at the first launch (feature/monetization)
+    FirstLaunchPaywall()
+}

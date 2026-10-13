@@ -1,0 +1,40 @@
+package com.kturker.multiplatform.core.multilang.resource.res
+
+import com.kturker.multiplatform.core.multilang.resource.StringResourcesUiModel
+
+internal val resourceEN = StringResourcesUiModel(
+    settingsTitle = "Settings",
+    githubSearchHint = "Enter Username",
+    themeLight = "Light",
+    themeSystem = "System",
+    themeDark = "Dark",
+    languageSystem = "System",
+    statFollowers = "Followers",
+    statFollowing = "Following",
+    statRepos = "Repos",
+    statGists = "Gists",
+    errorNoConnection = "No internet connection. Check your connection and try again.",
+    errorRateLimit = "GitHub's request limit has been reached. Wait a minute and try again.",
+    errorServer = "The server could not answer. Try again later.",
+    errorUnexpected = "Something went wrong. Try again.",
+    settingsPremium = "Premium",
+    settingsAdExamples = "Ad examples",
+    settingsRateApp = "Rate the app",
+    settingsVersion = "Version",
+    settingsPrivacyPolicy = "Privacy policy",
+    settingsTerms = "Terms of use",
+    settingsLicenses = "Open source licenses",
+    offlineBanner = "No connection",
+    updateAvailableTitle = "Update available",
+    updateAvailableMessage = "A new version of the app is available.",
+    updateNow = "Update",
+    updateLater = "Later",
+    updateRequiredTitle = "Update required",
+    updateRequiredMessage = "This version is no longer supported. Update the app to continue.",
+    updateDownloaded = "Update downloaded",
+    updateRestart = "Restart",
+    favoritesTitle = "Favorites",
+    addFavorite = "Add to favorites",
+    removeFavorite = "Remove from favorites",
+    retry = "Try again"
+)

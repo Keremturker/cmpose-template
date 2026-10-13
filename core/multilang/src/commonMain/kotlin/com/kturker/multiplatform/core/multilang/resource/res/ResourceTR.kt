@@ -1,0 +1,40 @@
+package com.kturker.multiplatform.core.multilang.resource.res
+
+import com.kturker.multiplatform.core.multilang.resource.StringResourcesUiModel
+
+internal val resourceTR = StringResourcesUiModel(
+    settingsTitle = "Ayarlar",
+    githubSearchHint = "Kullanıcı Adı Girin",
+    themeLight = "Açık",
+    themeSystem = "Sistem",
+    themeDark = "Koyu",
+    languageSystem = "Sistem",
+    statFollowers = "Takipçi",
+    statFollowing = "Takip Edilen",
+    statRepos = "Depo",
+    statGists = "Gist",
+    errorNoConnection = "İnternet bağlantısı yok. Bağlantınızı kontrol edip tekrar deneyin.",
+    errorRateLimit = "GitHub istek sınırına ulaşıldı. Bir dakika bekleyip tekrar deneyin.",
+    errorServer = "Sunucu yanıt veremedi. Daha sonra tekrar deneyin.",
+    errorUnexpected = "Bir şeyler ters gitti. Tekrar deneyin.",
+    settingsPremium = "Premium",
+    settingsAdExamples = "Reklam örnekleri",
+    settingsRateApp = "Uygulamayı değerlendir",
+    settingsVersion = "Sürüm",
+    settingsPrivacyPolicy = "Gizlilik politikası",
+    settingsTerms = "Kullanım koşulları",
+    settingsLicenses = "Açık kaynak lisansları",
+    offlineBanner = "Bağlantı yok",
+    updateAvailableTitle = "Güncelleme var",
+    updateAvailableMessage = "Uygulamanın yeni bir sürümü var.",
+    updateNow = "Güncelle",
+    updateLater = "Sonra",
+    updateRequiredTitle = "Güncelleme gerekli",
+    updateRequiredMessage = "Bu sürüm artık desteklenmiyor. Devam etmek için uygulamayı güncelleyin.",
+    updateDownloaded = "Güncelleme indirildi",
+    updateRestart = "Yeniden başlat",
+    favoritesTitle = "Favoriler",
+    addFavorite = "Favorilere ekle",
+    removeFavorite = "Favorilerden çıkar",
+    retry = "Tekrar dene"
+)

@@ -1,0 +1,131 @@
+This project was generated with **[CMP Project Wizard](https://cmpose.dev)**, the fastest way to bootstrap Compose Multiplatform projects.
+
+## Requirements
+
+<!-- cmpose:requirements -->
+| Requirement | Version |
+|---|---|
+| JDK | 21 |
+| Kotlin | 2.3.21 |
+| Compose Multiplatform | 1.11.1 |
+| Android Gradle Plugin | 9.2.1 |
+| Gradle (wrapper) | 9.4.1 |
+| Android compileSdk / targetSdk | 36 / 36 |
+| Android minSdk | 30 |
+| iOS minimum | 18.2 |
+| Xcode | 16 or newer |
+
+iOS targets are arm64 only (`iosArm64`, `iosSimulatorArm64`): the simulator needs an Apple Silicon Mac.
+<!-- /cmpose:requirements -->
+
+Gradle runs on JDK 21 (`gradle/gradle-daemon-jvm.properties`) and downloads it when it is missing.
+Android Studio's bundled JDK (JBR 21) works as is.
+
+## Run
+
+- **Android:** `./gradlew :androidApp:installDebug`, or run `androidApp` from Android Studio.
+- **iOS:** open `iosApp/iosApp.xcodeproj` in Xcode and run the `iosApp` scheme on a simulator.
+  To run on a device, set your Apple team ID as `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`;
+  it is also appended to the bundle ID, so each team signs its own ID.
+
+## Checks
+
+- `./gradlew detekt`: static analysis (only in projects generated with detekt).
+- `./gradlew allTests`: unit tests on the JVM and the iOS simulator. `./gradlew testAndroidHostTest` runs the JVM ones only.
+<!-- cmpose:ci -->
+- `.github/workflows/ci.yml` runs these on every pull request; start it by hand from the Actions tab (`workflow_dispatch`).
+<!-- /cmpose:ci -->
+
+## Logging
+
+`core/logging` sets up [Kermit](https://kermit.touchlab.co) when the app starts (`configureLogging` in `initKoin`): debug builds write every level, release builds only warnings and errors. Android writes to Logcat, iOS to the unified log (Xcode's console, Console.app). Every tag starts with the project's name, so filter on it.
+
+Log through a tagged logger: `private val log = Logger.withTag("Checkout")`, then `log.d { "…" }` or `log.w(throwable) { "…" }`. `println` is not used in this project. Never log tokens, keys, request or response bodies, headers or user data. Debug builds also log each HTTP request's method, URL and status (`core/network`, `RequestLogging.kt`); release builds do not.
+
+## Release
+
+- **Android:** release builds are minified (R8, `androidApp/proguard-rules.pro`). To sign them, copy
+  `keystore.properties.example` to `keystore.properties` and fill it in; the file and `*.jks` are git-ignored.
+  Without it the release APK is unsigned.
+- **Base URL** (projects with the network module): `core/network/.../ApiConfig.kt` holds `DEBUG_BASE_URL`
+  and `RELEASE_BASE_URL`; debug builds use the first, release builds the second.
+
+## In-app review
+
+`core/review` asks for a review through the platform's own dialog: Play In-App Review on Android, StoreKit on iOS. Call `ReviewPrompter.recordPositiveEvent()` (Koin) right after a moment the user wanted, such as a finished task or a saved item; the third such moment asks, then every tenth. `ReviewRequestEffect()` in `MainScreen.kt` passes the request on, so keep it. Do not ask at launch or in the middle of a task, do not ask "Do you like the app?" first and do not build a rating screen of your own: Apple and Google allow only the system dialog, and the system decides whether it shows.
+
+A **Rate the app** row or button opens the store page (`ReviewPrompter.openStorePage()`); the showcase has one on its settings screen. On Android this is the Play Store page of your application ID. On iOS, set your App Store ID in `core/review/.../AppStoreId.kt` (`APP_STORE_ID`, App Store Connect → App Information → Apple ID); until then the row shows the review dialog.
+
+Testing: Android shows the dialog only to an app installed from Google Play (use an internal test track); on an emulator nothing appears. iOS shows it every time in debug builds and never in TestFlight.
+
+## Connectivity and updates
+
+- **Offline band** (projects with the network module): `core/network` watches the connection (`ConnectivityMonitor`, from `core/domain`); `OfflineBanner` in `MainScreen.kt` shows "No connection". To load again when the connection comes back, inject `ConnectivityMonitor` and call your retry on `reconnections()` when the last error was `DataError.Network` (the showcase's Home and Onboarding do).
+- **Updates** (`core/update`, every project): `AppUpdateEffect()` in `MainScreen.kt` checks at most once a day. Android uses Play In-App Updates (flexible; only for an app installed from Google Play, use an internal test track). iOS compares the App Store's version (`itunes.apple.com/lookup?bundleId=…`) and offers the store page; an app that is not on the store yet is skipped.
+- **Forced update:** host a JSON file `{ "minVersion": { "android": 12, "ios": "1.4.0" } }` (Android: `versionCode`, iOS: `CFBundleShortVersionString`) and set `MIN_VERSION_URL` in `core/update/.../UpdateConfig.kt`; below it, the app shows an "Update required" screen that cannot be closed. Android projects without the network module and monetization have no `INTERNET` permission: add it back to `AndroidManifest.xml` when you set the URL.
+
+## Images
+
+Images load with [Coil 3](https://coil-kt.github.io/coil/) (`core/image`): `AsyncImage(model = url, …)` in any feature screen, or `KtAsyncImage` from the design system. `ImageLoaderSetup()` in `MainScreen.kt` configures the one loader: a memory cache, a 50 MB disk cache in the platform's cache directory and, in debug builds, Coil's logs in Kermit (tag `Image`). Network images need the network module (`coil-network-ktor3` lives in `core/network`); without it, local images (`Res`, files) still load.
+
+## Deep links
+
+The app opens links with its own scheme, `multiplatform://` (`DEEP_LINK_SCHEME` in `core/navigation/.../DeepLinkConfig.kt`; the generator sets it to your project's name in lower case). A link maps to a screen through a `DeepLinkRoute` (`@Single(binds = [DeepLinkRoute::class])`): `pattern = "orders/{id}"`, and `destination(arguments)` returns the screen's destination or `null`. Each generated feature module has one (`<Module>DeepLink`, path `<module>`); the showcase opens `multiplatform://user/octocat` and `multiplatform://settings`; `multiplatform://` alone just opens the app. Two routes with the same path: the first wins.
+
+Try it: `adb shell am start -a android.intent.action.VIEW -d "multiplatform://settings"` and `xcrun simctl openurl booted "multiplatform://settings"`.
+
+Another app may claim the same scheme; for a more unique one, use your package name (e.g. `com.example.app`) in `DeepLinkConfig.kt`, `AndroidManifest.xml` and `Info.plist` together.
+
+**App Links and Universal Links** (https links to your domain) are ready but off:
+1. Set `APP_LINK_HOST` in `DeepLinkConfig.kt` to your domain.
+2. Android: uncomment the `autoVerify` intent filter in `AndroidManifest.xml` with your host, and serve `https://<domain>/.well-known/assetlinks.json` with your package name and signing certificate's SHA-256 (`keytool -list -v -keystore …`; Play App Signing shows it in the Play Console).
+3. iOS: serve `https://<domain>/.well-known/apple-app-site-association` (`applinks` → your `TEAMID.bundleId`), copy `iosApp/Configuration/UniversalLinks.entitlements.example` to `iosApp/iosApp/iosApp.entitlements` with your domain, add `CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements` to `Config.xcconfig` and enable Associated Domains for the App ID.
+
+## Before you ship
+
+- **Privacy policy and terms:** set `PRIVACY_POLICY_URL` and `TERMS_URL` in `core/about/.../LegalUrls.kt`. Both stores ask for a privacy policy URL; while a URL is empty its row stays hidden.
+- **Version:** raise `versionCode`/`versionName` in `build-logic/.../AppConfig.kt` and `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `iosApp/Configuration/Config.xcconfig` together; the About row shows them.
+- **iOS privacy manifest:** `iosApp/iosApp/PrivacyInfo.xcprivacy` declares the required reason APIs this app's own code uses (the Kotlin code is linked into the app) and, with ads or purchases, the data they collect. When you add code or a Kotlin library that reads `UserDefaults`, file dates, disk space or the boot time, or collects data, update it. After an archive, Xcode's *Generate Privacy Report* lists every declaration, the SDKs' own included.
+- **App Store privacy form** (App Store Connect → App Privacy) and **Play data safety form:** answer them for the app as a whole, SDKs included; the privacy report is a starting point.
+- **Open source licences** are listed on their own screen (Settings, or About on the start screen); the list is generated from your dependencies on every build.
+
+<!-- cmpose:monetization -->
+## Monetization
+
+<!-- cmpose:purchases -->
+- **In-app purchases** (`core/purchases`, RevenueCat): purchases are simulated (RevenueCat *Test Store*) and nothing is charged: `revenueCatApiKey` (`PurchasesKeys.android.kt` and `PurchasesKeys.ios.kt`) is a Test Store key of the cmpose.dev demo project on both platforms. `PurchasesManager` is the app's only door to RevenueCat: `offer()` (the *current* offering's packages with the store's prices, the monthly price of annual and weekly plans, the annual saving and any free trial), `purchase(packageId)`, `restore()` (`PurchaseResult`: `Success`, `Cancelled`, `Error(message)`) and `isPremium` (the `premium` entitlement); app code never imports a RevenueCat type. The paywall (`feature/monetization` → `paywall/`) is a plain Compose screen on that API: redraw it in your design and keep `PaywallViewModel`. `FirstLaunchPaywall()` in `MainScreen` opens it once at the first launch (never for a premium user; the flag `paywall_first_shown` stays on the device until the app's data is cleared). In the RevenueCat dashboard: mark an offering *current*, give it packages (`$rc_annual`, `$rc_monthly`, `$rc_weekly`, `$rc_lifetime`) and attach the products to the `premium` entitlement. Release builds with a Test Store key keep purchases disabled on both platforms (RevenueCat's Android SDK would close the app; iOS does the same for consistency) and the paywall says so. Before you ship, create your own RevenueCat project, add your App Store / Play Store apps and replace the keys with your platform keys: `goog_…` in `androidMain` (`PurchasesKeys.android.kt`), `appl_…` in `iosMain` (`PurchasesKeys.ios.kt`).
+<!-- /cmpose:purchases -->
+<!-- cmpose:ads -->
+- **AdMob** (`core/ads`): Android uses the GMA Next-Gen SDK, iOS the Google Mobile Ads SDK (Next-Gen is Android-only). Ads are Google's test ads (test app IDs and test ad units), which always fill and never pay. Before you ship, replace the test app IDs (Android: `androidApp/src/main/AndroidManifest.xml` and `ADMOB_APP_ID` in `AdUnitIds.android.kt`, the same ID in both; iOS: `iosApp/iosApp/Info.plist` `GADApplicationIdentifier`) and the test units (`AdUnitIds`), publish a GDPR message in AdMob → Privacy & messaging and keep `SKAdNetworkItems` current. The demo asks for consent (UMP, then App Tracking Transparency on iOS) the first time the ads screen opens; a real app usually asks at launch. Where the consent rules require it (GDPR regions), the ads screen shows a *Privacy options* button that reopens the UMP form so the user can change their choice; a real app puts this entry in its settings. Debug builds force the EEA consent form (Android `ConsentDebugSettings` in `AdsController.android.kt`, iOS `DebugSettings` in `iosApp/iosApp/AdsBridge.swift`); release builds use the user's real location. Emulators and simulators are test devices; on a physical device the EEA debug geography also needs the device's test ID (`addTestDeviceHashedId` on Android, `testDeviceIdentifiers` on iOS). The iOS Swift packages (Google Mobile Ads, UMP) are pinned by `iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`. With in-app purchases, until RevenueCat answers (first launch, offline) premium is unknown and the ads demo shows no banner or interstitial. `InterstitialPacer` (`core/ads`, one per app from Koin) keeps interstitials to natural breaks: none in the first minute of a session and at most one per session; ask `shouldShow()` at a break, then call `recordShown()` once the ad was on screen. Premium is the caller's check (`AdFreeSource`).
+<!-- /cmpose:ads -->
+<!-- /cmpose:monetization -->
+
+<!-- cmpose:room -->
+## Local database (Room)
+
+`core/room` holds the app's Room database, `AppDatabase`: SQLite through the bundled driver, the same on Android and iOS. Koin provides the database and each DAO (`AppDatabase.kt`, `di/RoomModule.kt`); a module that uses a DAO takes it with `@Provided`.
+<!-- cmpose:room-favorites -->
+- **Favorites** (`core/room` → `favorites/`): the star on a profile saves the GitHub user (`FavoriteUserEntity`, `FavoriteUserDao`) and the onboarding screen lists the saved users live. `feature/home` wraps the DAO in `FavoritesRepository` (`domain`) and `FavoritesRepositoryImpl` (`data`).
+<!-- /cmpose:room-favorites -->
+<!-- cmpose:room-notes -->
+- **Notes demo** (`feature/notes`, `core/room` → `notes/`): add and delete notes on one screen. The ViewModel calls `NoteDao` directly to keep the demo short; in a real feature, put a repository in a `data` layer and keep Room out of the screen.
+<!-- /cmpose:room-notes -->
+
+To add a table, add an `@Entity` and a `@Dao` in their own package, list the entity in `@Database(entities = …)` and add an abstract function and a `@Single` provider for the DAO in `AppDatabase.kt`. Once the app has shipped, changing a table needs a new `version` and a migration (`autoMigrations` or a `Migration`). `core/room/schemas/` keeps the schema of every version: commit it.
+<!-- /cmpose:room -->
+
+## Modules
+
+<!-- cmpose:modules -->
+- `:androidApp`: Android entry point (Application, Activity)
+- `:shared`: app shell: navigation graph, Koin start (`di/initKoin.kt`), the iOS framework
+<!-- /cmpose:modules -->
+
+## Documentation
+
+👉 **[Developer Guide](https://cmpose.dev/guide.html)**: architecture, navigation, Koin, networking, theming.
+
+## Connect
+
+- 🌐 **Website:** [cmpose.dev](https://cmpose.dev)
+- 💼 **LinkedIn:** [Compose Wiki](https://www.linkedin.com/company/compose-wiki/)

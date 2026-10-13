@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode: the palette's dark background (OnDarkColorsPalette), so a dark-mode device
+         never shows a white window at launch. -->
+    <color name="window_background">#FF202326</color>
+
+    <style name="Theme.App" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

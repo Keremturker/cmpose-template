@@ -1,0 +1,40 @@
+package com.kturker.multiplatform.core.multilang.resource.res
+
+import com.kturker.multiplatform.core.multilang.resource.StringResourcesUiModel
+
+internal val resourceFR = StringResourcesUiModel(
+    settingsTitle = "Paramètres",
+    githubSearchHint = "Entrez le Nom d’Utilisateur",
+    themeLight = "Clair",
+    themeSystem = "Système",
+    themeDark = "Sombre",
+    languageSystem = "Système",
+    statFollowers = "Abonnés",
+    statFollowing = "Abonnements",
+    statRepos = "Dépôts",
+    statGists = "Gists",
+    errorNoConnection = "Pas de connexion Internet. Vérifiez votre connexion et réessayez.",
+    errorRateLimit = "La limite de requêtes GitHub est atteinte. Patientez une minute et réessayez.",
+    errorServer = "Le serveur n’a pas pu répondre. Réessayez plus tard.",
+    errorUnexpected = "Une erreur s’est produite. Réessayez.",
+    settingsPremium = "Premium",
+    settingsAdExamples = "Exemples d’annonces",
+    settingsRateApp = "Noter l’app",
+    settingsVersion = "Version",
+    settingsPrivacyPolicy = "Politique de confidentialité",
+    settingsTerms = "Conditions d’utilisation",
+    settingsLicenses = "Licences open source",
+    offlineBanner = "Pas de connexion",
+    updateAvailableTitle = "Mise à jour disponible",
+    updateAvailableMessage = "Une nouvelle version de l’app est disponible.",
+    updateNow = "Mettre à jour",
+    updateLater = "Plus tard",
+    updateRequiredTitle = "Mise à jour requise",
+    updateRequiredMessage = "Cette version n’est plus prise en charge. Mettez l’app à jour pour continuer.",
+    updateDownloaded = "Mise à jour téléchargée",
+    updateRestart = "Redémarrer",
+    favoritesTitle = "Favoris",
+    addFavorite = "Ajouter aux favoris",
+    removeFavorite = "Retirer des favoris",
+    retry = "Réessayer"
+)
