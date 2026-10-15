@@ -14,6 +14,10 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             export(projects.core.ads)
+            // cmpose:backend
+            // Swift implements core:auth's IosSignInBridge and hands it to registerSignInBridge
+            export(projects.core.auth)
+            // /cmpose:backend
             baseName = "Shared"
             isStatic = true
         }
@@ -30,6 +34,9 @@ kotlin {
             implementation(projects.core.review)
             implementation(projects.core.update)
             implementation(projects.core.network)
+            // cmpose:backend
+            implementation(projects.core.auth)
+            // /cmpose:backend
             implementation(projects.core.room)
             implementation(projects.feature.home.data)
             implementation(projects.feature.home.contract)
@@ -44,10 +51,27 @@ kotlin {
             implementation(projects.core.purchases)
             implementation(projects.feature.monetization.contract)
             implementation(projects.feature.monetization.presentation)
+            // cmpose:backend
+            // The backend's sign-in gate (SessionGate.kt): sign-in and settings, spaces and invite links
+            implementation(projects.feature.account.contract)
+            implementation(projects.feature.account.presentation)
+            implementation(projects.feature.sharing.contract)
+            implementation(projects.feature.sharing.presentation)
+            // /cmpose:backend
         }
+        // cmpose:backend
+        iosMain.dependencies {
+            // Exported from the Shared framework (see the framework block above)
+            api(projects.core.auth)
+        }
+        // /cmpose:backend
         // KoinGraphTest reads constructors through Kotlin reflection, which is JVM only.
         getByName("androidHostTest").dependencies {
             implementation(libs.kotlin.reflect)
+            // cmpose:backend
+            // BackendBindingsTest looks up the backend's HttpClient definition
+            implementation(libs.ktor.client.core)
+            // /cmpose:backend
         }
     }
 }

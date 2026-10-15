@@ -38,6 +38,10 @@ dependencyResolutionManagement {
 include(":shared")
 include(":androidApp")
 include(":core:about")
+// cmpose:backend
+include(":core:api")
+include(":core:auth")
+// /cmpose:backend
 include(":core:ads")
 include(":core:database")
 include(":core:designsystem")
@@ -55,6 +59,14 @@ include(":core:room")
 include(":feature:monetization")
 include(":feature:monetization:contract")
 include(":feature:monetization:presentation")
+// cmpose:backend
+include(":feature:account")
+include(":feature:account:contract")
+include(":feature:account:presentation")
+include(":feature:sharing")
+include(":feature:sharing:contract")
+include(":feature:sharing:presentation")
+// /cmpose:backend
 include(":feature:home")
 include(":feature:home:contract")
 include(":feature:home:data")
@@ -73,4 +85,7 @@ include(":feature:sample:contract")
 include(":feature:sample:data")
 include(":feature:sample:domain")
 include(":feature:sample:presentation")
+// cmpose:backend
+include(":server")
+// /cmpose:backend
 includeBuild("build-logic")

@@ -20,6 +20,7 @@ import com.kturker.multiplatform.core.image.ImageLoaderSetup
 import com.kturker.multiplatform.core.multilang.language.LanguageManager
 import com.kturker.multiplatform.core.navigation.FeatureEntry
 import com.kturker.multiplatform.core.navigation.NavGraphProvider
+import com.kturker.multiplatform.core.navigation.NavigationCommand
 import com.kturker.multiplatform.core.navigation.NavigationManager
 import com.kturker.multiplatform.core.review.ReviewRequestEffect
 import com.kturker.multiplatform.core.update.AppUpdateEffect
@@ -45,7 +46,8 @@ fun MainScreen(
 
     val koin = getKoin()
     val providers = remember(koin) { koin.getAll<NavGraphProvider>() }
-    val entries = remember(koin) { koin.getAll<FeatureEntry>().sortedBy { it.title } }
+    // cmpose:backend-off: val entries = remember(koin) { koin.getAll<FeatureEntry>().sortedBy { it.title } }
+    val entries = remember(koin) { koin.getAll<FeatureEntry>().filter { it.visible }.sortedBy { it.title } }
 
     // The app's strings (LocalStringResources.current.<key>): the device language, or the saved choice
     val resources by languageManager.currentResources.collectAsState()
@@ -53,6 +55,13 @@ fun MainScreen(
     LaunchedEffect(key1 = Unit) {
         languageManager.setSystemLanguage()
     }
+
+    // cmpose:backend
+    // The sign-in gate (SessionGate.kt): nothing until the restored session is known, then the sign-in while
+    // nobody is signed in, else the guide; an invite link opened while signed out shows after the sign-in
+    // /cmpose:backend
+    // cmpose:backend-off: val start: NavigationCommand.Destination = GuideDestination
+    val start: NavigationCommand.Destination = rememberSessionStart(GuideDestination, navigationManager) ?: return
 
     AppTheme {
         CompositionLocalProvider(LocalStringResources provides resources) {
@@ -65,7 +74,7 @@ fun MainScreen(
                             .padding(paddingValues)
                             .consumeWindowInsets(paddingValues),
                         navController = navController,
-                        startDestination = GuideDestination
+                        startDestination = start
                     ) {
                         composable<GuideDestination> {
                             GuideScreen(

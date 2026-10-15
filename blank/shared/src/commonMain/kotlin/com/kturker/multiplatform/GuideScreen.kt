@@ -30,14 +30,18 @@ import com.kturker.multiplatform.core.about.AppInfo
 import com.kturker.multiplatform.core.about.LegalLinkKind
 import com.kturker.multiplatform.core.about.licenses.LicensesDestination
 import com.kturker.multiplatform.core.navigation.FeatureEntry
+import com.kturker.multiplatform.core.navigation.NavigationCommand
 import com.kturker.multiplatform.core.navigation.NavigationManager
 import com.kturker.multiplatform.core.review.rememberReviewRequester
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 
+// cmpose:backend
+// A Destination: the sign-in gate (SessionGate.kt) navigates back to it after a sign-in
+// /cmpose:backend
 @Serializable
-internal data object GuideDestination
+internal data object GuideDestination : NavigationCommand.Destination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

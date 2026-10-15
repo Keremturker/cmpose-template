@@ -7,4 +7,7 @@ package com.kturker.multiplatform.core.navigation
 interface FeatureEntry {
     val title: String
     val destination: NavigationCommand.Destination
+
+    /** False keeps the entry off the start screen, for a feature its config turns off. */
+    val visible: Boolean get() = true
 }

@@ -21,6 +21,7 @@ import com.kturker.multiplatform.core.image.ImageLoaderSetup
 import com.kturker.multiplatform.core.multilang.language.LanguageManager
 import com.kturker.multiplatform.core.multilang.resource.StringResourcesUiModel
 import com.kturker.multiplatform.core.navigation.NavGraphProvider
+import com.kturker.multiplatform.core.navigation.NavigationCommand
 import com.kturker.multiplatform.core.navigation.NavigationManager
 import com.kturker.multiplatform.core.review.ReviewRequestEffect
 import com.kturker.multiplatform.core.update.AppUpdateEffect
@@ -53,6 +54,13 @@ fun MainScreen(
         languageManager.setSystemLanguage()
     }
 
+    // cmpose:backend
+    // The sign-in gate (SessionGate.kt): nothing until the restored session is known, then the sign-in while
+    // nobody is signed in, else the onboarding; an invite link opened while signed out shows after the sign-in
+    // /cmpose:backend
+    // cmpose:backend-off: val start: NavigationCommand.Destination = OnboardingDestination
+    val start: NavigationCommand.Destination = rememberSessionStart(OnboardingDestination, navigationManager) ?: return
+
     AppTheme {
         CompositionLocalProvider(LocalStringResources provides resource) {
             Scaffold(
@@ -65,7 +73,7 @@ fun MainScreen(
                             .padding(paddingValues)
                             .consumeWindowInsets(paddingValues),
                         navController = navController,
-                        startDestination = OnboardingDestination
+                        startDestination = start
                     ) {
                         providers.forEach {
                             it.registerGraph(provider = this)

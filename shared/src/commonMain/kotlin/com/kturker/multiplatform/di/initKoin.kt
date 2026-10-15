@@ -4,6 +4,7 @@ package com.kturker.multiplatform.di
 
 import co.touchlab.kermit.Logger
 import com.kturker.multiplatform.core.about.di.AboutModule
+import com.kturker.multiplatform.core.auth.di.AuthModule
 import com.kturker.multiplatform.core.database.di.DatabaseModule
 import com.kturker.multiplatform.core.domain.BuildEnvironment
 import com.kturker.multiplatform.core.logging.configureLogging
@@ -14,6 +15,7 @@ import com.kturker.multiplatform.core.purchases.di.PurchasesModule
 import com.kturker.multiplatform.core.review.di.ReviewModule
 import com.kturker.multiplatform.core.room.di.RoomModule
 import com.kturker.multiplatform.core.update.di.UpdateModule
+import com.kturker.multiplatform.feature.account.presentation.di.AccountModule
 import com.kturker.multiplatform.feature.home.data.di.HomeDataModule
 import com.kturker.multiplatform.feature.home.domain.di.HomeDomainModule
 import com.kturker.multiplatform.feature.home.presentation.di.HomePresentationModule
@@ -21,6 +23,7 @@ import com.kturker.multiplatform.feature.monetization.presentation.di.Monetizati
 import com.kturker.multiplatform.feature.onboarding.data.di.OnboardingDataModule
 import com.kturker.multiplatform.feature.onboarding.domain.di.OnboardingDomainModule
 import com.kturker.multiplatform.feature.onboarding.presentation.di.OnboardingPresentationModule
+import com.kturker.multiplatform.feature.sharing.presentation.di.SharingModule
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.context.startKoin
@@ -53,6 +56,11 @@ fun appModules(): List<KoinModule> = buildList {
     add(OnboardingDataModule().module)
     add(OnboardingDomainModule().module)
     add(NetworkModule().module)
+    // cmpose:backend
+    add(AuthModule().module)
+    add(AccountModule().module)
+    add(SharingModule().module)
+    // /cmpose:backend
     add(CmpModule().module)
     add(HomeDataModule().module)
     add(HomeDomainModule().module)

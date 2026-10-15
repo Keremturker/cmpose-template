@@ -114,11 +114,95 @@ Another app may claim the same scheme; for a more unique one, use your package n
 To add a table, add an `@Entity` and a `@Dao` in their own package, list the entity in `@Database(entities = …)` and add an abstract function and a `@Single` provider for the DAO in `AppDatabase.kt`. Once the app has shipped, changing a table needs a new `version` and a migration (`autoMigrations` or a `Migration`). `core/room/schemas/` keeps the schema of every version: commit it.
 <!-- /cmpose:room -->
 
+<!-- cmpose:backend -->
+## Local server
+
+The Ktor server (`server/`) runs on your computer while the apps are tried on an emulator or simulator:
+
+- `./gradlew :server:runLocal` starts it on `127.0.0.1:18001` (loopback only, never on the network) with an
+  embedded PostgreSQL 16. It prints `LOCAL_SERVER_READY port=18001` once it answers; Ctrl-C stops it.
+- Everything lives in `.local-server/` (not in git): `config.properties`, the database (`postgres/`) and the uploaded
+  files (`files/`). Data survives restarts.
+- `config.properties` needs `firebaseProjectId=<Firebase project id>` and may set `port=<n>`. A missing file, a bad
+  port or a busy port stops the runner with a message and exit code 1.
+- `./gradlew :server:resetLocal` deletes `.local-server/` (database, files and config) to start from scratch.
+
+The runner and the PostgreSQL binaries sit in the `local` source set, so the release jar (`:server:shadowJar`)
+carries neither.
+
+## Backend in the app
+
+Sign-in is required: `MainScreen.kt` shows the sign-in screen while nobody is signed in and the app's first screen
+after it (`SessionGate.kt`). When the user changes (sign-out, another account, a session the server ended), the app
+drops the cached token and the previous user's selected space.
+
+- `core/api`: the requests and answers the app and the server share (`ApiModels.kt`) and the paths (`ApiRoutes.kt`).
+- `core/auth`: Firebase Authentication (email and password, Google, Apple) and the signed-in user's ID token.
+- `core/network`: the backend's own `HttpClient`, named `BACKEND_CLIENT`; it sends the ID token to the backend's host
+  only and retries once after a 401. The app's other `HttpClient` stays without a token. `BackendConfig.kt` holds the
+  addresses: the local server in debug builds, `RELEASE_BASE_URL` (a placeholder) in release builds.
+- `core/image`: images the backend serves load with the token (`core/auth` adds the backend client's fetcher through
+  an `ImageLoaderCustomizer`); `normalizeImageForUpload` turns a picked photo into a JPEG (at most 2048 px and 5 MB,
+  HEIC included) before an upload.
+- `feature/account`: sign-in and account settings (sign-out, account deletion).
+- `feature/sharing`: the user's spaces, their members and invite links (`multiplatform://invite/<token>`); an invite
+  opened while signed out shows after the sign-in.
+- `server`: the Ktor server (above).
+
+**Reaching the local server** (debug builds; release builds use `RELEASE_BASE_URL`):
+
+- Android emulator: `10.0.2.2:18001`, the emulator's alias for the computer, chosen automatically.
+- Android phone over USB: run `adb reverse tcp:18001 tcp:18001` once per connection; the app then uses
+  `localhost:18001`, which the tunnel carries to the computer.
+- iOS simulator: `localhost:18001`, the Mac's own loopback. A physical iPhone cannot use `localhost`; it would need
+  the Mac's address on the local network, which the template does not set and the debug App Transport Security
+  exception does not cover.
+
+Plain HTTP to these addresses is allowed in debug builds only (`androidApp/src/debug/res/xml/network_security_config.xml`,
+`NSAllowsLocalNetworking` in the Debug `Info.plist`).
+
+**Firebase files.** Each developer adds their own, and git ignores both:
+
+- `androidApp/google-services.json` (Firebase console → Project settings → your Android app). Without it the
+  google-services plugin is not applied.
+- `iosApp/iosApp/GoogleService-Info.plist` (the same page, your iOS app). The build copies it into the app only when
+  it exists. With it, also set `GOOGLE_REVERSED_CLIENT_ID` in `iosApp/Configuration/Config.xcconfig` to the
+  plist's `REVERSED_CLIENT_ID`: Google sign-in on iOS crashes when the plist is there and that value is empty, so set
+  both together.
+- The server's `.local-server/config.properties` takes the same project's id (`firebaseProjectId`).
+
+Without the Firebase files the app still builds, its tests pass and it starts: the sign-in screen says that Firebase is
+not configured, and nobody can sign in. An invite link then waits for a sign-in that never comes; the app's other
+deep links are not gated and still open their screens over the sign-in screen.
+
+**Sharing model.** Every record belongs to a space. Each user has a personal space, created on their first request;
+they can create more and invite others as editors or viewers through a link (single use, valid for 7 days). Roles
+rank `OWNER` > `EDITOR` > `VIEWER`. To a non-member a space does not exist: the server answers 404, never 403.
+
+**Adding a table** (see `server/src/test/.../ExampleItemRoutes.kt`, a reference that does not ship):
+
+1. A Flyway migration, `server/src/main/resources/db/migration/V2__<feature>.sql`, creates the table with a
+   `space_id` column referencing `spaces(id) ON DELETE CASCADE`, so deleting a space deletes its rows.
+2. Its routes live under `/spaces/{id}/...`, inside the `authenticate(FIREBASE_AUTH)` block.
+3. Every handler starts with `call.requireRole(spaces, call.parameters["id"].orEmpty(), Role.VIEWER)` (`Role.EDITOR`
+   to write) and queries with the returned `membership.spaceId`, never with the raw path value. Do not check
+   membership by hand.
+4. In the app, read the current space from `SelectedSpace` (`feature/sharing`) and call the routes with the
+   `BACKEND_CLIENT` HttpClient.
+<!-- /cmpose:backend -->
+
 ## Modules
 
 <!-- cmpose:modules -->
 - `:androidApp`: Android entry point (Application, Activity)
 - `:shared`: app shell: navigation graph, Koin start (`di/initKoin.kt`), the iOS framework
+<!-- cmpose:backend -->
+- `:server`: the Ktor backend and its local runner (`runLocal`)
+- `:core:api`: the requests, answers and paths the app and the server share
+- `:core:auth`: Firebase sign-in (email, Google, Apple) and the backend's ID token
+- `:feature:account`: contract, presentation
+- `:feature:sharing`: contract, presentation
+<!-- /cmpose:backend -->
 <!-- /cmpose:modules -->
 
 ## Documentation
