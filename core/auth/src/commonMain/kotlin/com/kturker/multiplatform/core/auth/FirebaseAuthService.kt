@@ -103,9 +103,10 @@ internal class FirebaseAuthService(
         is SocialToken.Failed -> AuthResult.Failure(token.reason)
     }
 
-    private suspend fun credentialSignIn(credential: AuthCredential): AuthResult = firebaseCall(::socialResultOf) {
-        auth.signInWithCredential(credential)
-    }
+    private suspend fun credentialSignIn(credential: AuthCredential): AuthResult =
+        firebaseCall(::socialResultOf) {
+            auth.signInWithCredential(credential)
+        }
 
     private suspend fun firebaseCall(
         resultOf: (code: String?) -> AuthResult = ::authResultOf,

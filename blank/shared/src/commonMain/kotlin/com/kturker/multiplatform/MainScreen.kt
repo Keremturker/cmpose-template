@@ -63,7 +63,9 @@ fun MainScreen(navigationManager: NavigationManager = koinInject()) {
                         GuideScreen(
                             entries = entries,
                             onEntryClick = { entry -> navigationManager.navigate(entry.destination) },
-                            onDocumentationClick = { uriHandler.openUri("https://cmpose.dev/guide.html") }
+                            onDocumentationClick = {
+                                uriHandler.openUri("https://whinstudio.github.io/cmpose/guide.html")
+                            }
                         )
                     }
                     providers.forEach {

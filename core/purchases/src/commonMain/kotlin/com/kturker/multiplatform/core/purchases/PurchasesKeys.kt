@@ -1,7 +1,7 @@
 package com.kturker.multiplatform.core.purchases
 
 // The RevenueCat API key of this platform: revenueCatApiKey in PurchasesKeys.android.kt and PurchasesKeys.ios.kt.
-// Both ship the Test Store key of the cmpose.dev demo project: purchases are simulated, nothing is charged.
+// Both ship the Test Store key of the cmpose demo project: purchases are simulated, nothing is charged.
 // A release build with a Test Store key keeps purchases disabled on both platforms: RevenueCat's Android
 // SDK closes a release app configured with one. purchases-kmp builds purchases-ios with that check
 // bypassed, but the template disables purchases on iOS too, for the same behavior on both platforms and

@@ -47,7 +47,7 @@ data class AccountStrings(
             signIn = "Sign in",
             sessionEnded = "Your session ended. Please sign in again.",
             firebaseUnavailable = "Firebase is not configured. Add google-services.json and GoogleService-Info.plist " +
-                "following the steps in the cmpose.dev guide.",
+                "following the steps in the cmpose guide.",
             createAccount = "Create account",
             continueWithGoogle = "Continue with Google",
             signInWithApple = "Sign in with Apple",
@@ -78,7 +78,7 @@ data class AccountStrings(
             accountTitle = "Hesap",
             signIn = "Giriş yap",
             sessionEnded = "Oturumun sona erdi. Lütfen yeniden giriş yap.",
-            firebaseUnavailable = "Firebase yapılandırılmadı. cmpose.dev kılavuzundaki adımlarla " +
+            firebaseUnavailable = "Firebase yapılandırılmadı. cmpose kılavuzundaki adımlarla " +
                 "google-services.json ve GoogleService-Info.plist ekle.",
             createAccount = "Hesap oluştur",
             continueWithGoogle = "Google ile devam et",
@@ -109,7 +109,7 @@ data class AccountStrings(
             signIn = "Iniciar sesión",
             sessionEnded = "Tu sesión ha terminado. Vuelve a iniciar sesión.",
             firebaseUnavailable = "Firebase no está configurado. Añade google-services.json y " +
-                "GoogleService-Info.plist siguiendo los pasos de la guía de cmpose.dev.",
+                "GoogleService-Info.plist siguiendo los pasos de la guía de cmpose.",
             createAccount = "Crear cuenta",
             continueWithGoogle = "Continuar con Google",
             signInWithApple = "Iniciar sesión con Apple",
@@ -141,7 +141,7 @@ data class AccountStrings(
             signIn = "Accedi",
             sessionEnded = "La sessione è scaduta. Accedi di nuovo.",
             firebaseUnavailable = "Firebase non è configurato. Aggiungi google-services.json e " +
-                "GoogleService-Info.plist seguendo i passaggi della guida di cmpose.dev.",
+                "GoogleService-Info.plist seguendo i passaggi della guida di cmpose.",
             createAccount = "Crea account",
             continueWithGoogle = "Continua con Google",
             signInWithApple = "Accedi con Apple",
@@ -173,7 +173,7 @@ data class AccountStrings(
             signIn = "Se connecter",
             sessionEnded = "Votre session a expiré. Reconnectez-vous.",
             firebaseUnavailable = "Firebase n’est pas configuré. Ajoutez google-services.json et " +
-                "GoogleService-Info.plist en suivant les étapes du guide cmpose.dev.",
+                "GoogleService-Info.plist en suivant les étapes du guide cmpose.",
             createAccount = "Créer un compte",
             continueWithGoogle = "Continuer avec Google",
             signInWithApple = "Se connecter avec Apple",
