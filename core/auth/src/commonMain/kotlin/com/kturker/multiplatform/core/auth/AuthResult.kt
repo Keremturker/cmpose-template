@@ -9,7 +9,16 @@ sealed interface AuthResult {
     data class Failure(val reason: AuthFailure) : AuthResult
 }
 
-enum class AuthFailure { INVALID_CREDENTIALS, EMAIL_IN_USE, WEAK_PASSWORD, NETWORK, UNAVAILABLE, UNKNOWN }
+/** [PROVIDER_REJECTED]: Firebase refused a Google or Apple account (e.g. a token for an app the project lacks). */
+enum class AuthFailure {
+    INVALID_CREDENTIALS,
+    PROVIDER_REJECTED,
+    EMAIL_IN_USE,
+    WEAK_PASSWORD,
+    NETWORK,
+    UNAVAILABLE,
+    UNKNOWN
+}
 
 /**
  * Maps a Firebase Auth error code to a failure. Android reports the SDK's ERROR_* names; GitLive's iOS
@@ -38,4 +47,14 @@ internal fun authFailureOf(code: String?): AuthFailure = when (code) {
 internal fun authResultOf(code: String?): AuthResult = when (code) {
     "ERROR_REQUIRES_RECENT_LOGIN", "17014" -> AuthResult.NeedsRecentLogin
     else -> AuthResult.Failure(authFailureOf(code))
+}
+
+/** Firebase's answer to a Google or Apple credential: a refused one is the account, not a typed password. */
+internal fun socialResultOf(code: String?): AuthResult {
+    val result = authResultOf(code)
+    return if (result == AuthResult.Failure(AuthFailure.INVALID_CREDENTIALS)) {
+        AuthResult.Failure(AuthFailure.PROVIDER_REJECTED)
+    } else {
+        result
+    }
 }

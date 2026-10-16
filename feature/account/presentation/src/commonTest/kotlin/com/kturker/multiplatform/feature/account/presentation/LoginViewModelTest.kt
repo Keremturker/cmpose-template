@@ -105,6 +105,18 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun aRefusedGoogleOrAppleAccountIsNotAWrongPassword() = runTest {
+        auth.google[0] = AuthResult.Failure(AuthFailure.PROVIDER_REJECTED)
+        val viewModel = viewModel()
+
+        viewModel.signInWithGoogle()
+        advanceUntilIdle()
+
+        assertEquals(UiError.PROVIDER_REJECTED, viewModel.state.value.error)
+        assertEquals(0, profileSync.calls)
+    }
+
+    @Test
     fun aSuccessfulSignInSyncsTheProfileOnce() = runTest {
         val viewModel = viewModel()
 

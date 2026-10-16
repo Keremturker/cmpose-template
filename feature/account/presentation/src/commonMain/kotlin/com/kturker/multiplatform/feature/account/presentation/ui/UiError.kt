@@ -8,7 +8,7 @@ import com.kturker.multiplatform.core.multilang.resource.AccountStrings
 import com.kturker.multiplatform.core.multilang.resource.account
 
 /** What the account screens tell the user; each one has a message in [AccountStrings] ([uiErrorText]). */
-internal enum class UiError { NETWORK, INVALID_CREDENTIALS, EMAIL_IN_USE, WEAK_PASSWORD, UNKNOWN }
+internal enum class UiError { NETWORK, INVALID_CREDENTIALS, PROVIDER_REJECTED, EMAIL_IN_USE, WEAK_PASSWORD, UNKNOWN }
 
 private const val UNAUTHORIZED = 401
 
@@ -22,6 +22,7 @@ internal fun DataError.toUiError(): UiError =
 // general message (the sign-in screen explains a missing config on its own)
 internal fun AuthFailure.toUiError(): UiError = when (this) {
     AuthFailure.INVALID_CREDENTIALS -> UiError.INVALID_CREDENTIALS
+    AuthFailure.PROVIDER_REJECTED -> UiError.PROVIDER_REJECTED
     AuthFailure.EMAIL_IN_USE -> UiError.EMAIL_IN_USE
     AuthFailure.WEAK_PASSWORD -> UiError.WEAK_PASSWORD
     AuthFailure.NETWORK -> UiError.NETWORK
@@ -31,6 +32,7 @@ internal fun AuthFailure.toUiError(): UiError = when (this) {
 internal fun UiError.message(strings: AccountStrings): String = when (this) {
     UiError.NETWORK -> strings.errorNetwork
     UiError.INVALID_CREDENTIALS -> strings.errorInvalidCredentials
+    UiError.PROVIDER_REJECTED -> strings.errorProviderRejected
     UiError.EMAIL_IN_USE -> strings.errorEmailInUse
     UiError.WEAK_PASSWORD -> strings.errorWeakPassword
     UiError.UNKNOWN -> strings.errorUnknown

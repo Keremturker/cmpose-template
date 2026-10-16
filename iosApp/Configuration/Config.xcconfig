@@ -1,7 +1,7 @@
 TEAM_ID=
 
 PRODUCT_NAME=ComposeMultiplatform
-PRODUCT_BUNDLE_IDENTIFIER=com.kturker.composemultiplatform.ComposeMultiplatform$(TEAM_ID)
+PRODUCT_BUNDLE_IDENTIFIER=com.kturker.composemultiplatform.ComposeMultiplatform
 // cmpose:backend
 
 // Google Sign-In's callback URL scheme: REVERSED_CLIENT_ID from GoogleService-Info.plist; Info.plist

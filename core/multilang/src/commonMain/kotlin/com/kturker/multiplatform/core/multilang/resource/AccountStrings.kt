@@ -35,6 +35,8 @@ data class AccountStrings(
     val personalSpace: String,
     val errorNetwork: String,
     val errorInvalidCredentials: String,
+    /** Firebase refused the Google or Apple account (not a typed password). */
+    val errorProviderRejected: String,
     val errorEmailInUse: String,
     val errorWeakPassword: String,
     val errorUnknown: String
@@ -66,6 +68,7 @@ data class AccountStrings(
             personalSpace = "Personal",
             errorNetwork = "No connection",
             errorInvalidCredentials = "Wrong email or password",
+            errorProviderRejected = "Could not sign in with this account",
             errorEmailInUse = "This email is already registered",
             errorWeakPassword = "Password must be at least 6 characters",
             errorUnknown = "Something went wrong"
@@ -95,6 +98,7 @@ data class AccountStrings(
             personalSpace = "Kişisel",
             errorNetwork = "Bağlantı yok",
             errorInvalidCredentials = "E-posta ya da şifre yanlış",
+            errorProviderRejected = "Bu hesapla giriş yapılamadı",
             errorEmailInUse = "Bu e-posta zaten kayıtlı",
             errorWeakPassword = "Şifre en az 6 karakter olmalı",
             errorUnknown = "Bir şeyler ters gitti"
@@ -126,6 +130,7 @@ data class AccountStrings(
             personalSpace = "Personal",
             errorNetwork = "Sin conexión",
             errorInvalidCredentials = "Correo o contraseña incorrectos",
+            errorProviderRejected = "No se pudo iniciar sesión con esta cuenta",
             errorEmailInUse = "Este correo ya está registrado",
             errorWeakPassword = "La contraseña debe tener al menos 6 caracteres",
             errorUnknown = "Algo salió mal"
@@ -157,6 +162,7 @@ data class AccountStrings(
             personalSpace = "Personale",
             errorNetwork = "Nessuna connessione",
             errorInvalidCredentials = "Email o password errati",
+            errorProviderRejected = "Impossibile accedere con questo account",
             errorEmailInUse = "Questa email è già registrata",
             errorWeakPassword = "La password deve contenere almeno 6 caratteri",
             errorUnknown = "Qualcosa è andato storto"
@@ -188,6 +194,7 @@ data class AccountStrings(
             personalSpace = "Personnel",
             errorNetwork = "Pas de connexion",
             errorInvalidCredentials = "E-mail ou mot de passe incorrect",
+            errorProviderRejected = "Connexion impossible avec ce compte",
             errorEmailInUse = "Cet e-mail est déjà utilisé",
             errorWeakPassword = "Le mot de passe doit contenir au moins 6 caractères",
             errorUnknown = "Une erreur s’est produite"

@@ -19,6 +19,15 @@ class AuthErrorMappingTest {
         assertEquals(AuthResult.NeedsRecentLogin, authResultOf("ERROR_REQUIRES_RECENT_LOGIN"))
     }
 
+    // A Google or Apple token Firebase refuses (its audience is not one of the project's apps) is not a wrong password
+    @Test
+    fun aRefusedSocialCredentialIsNotAWrongPassword() {
+        assertEquals(AuthResult.Failure(AuthFailure.PROVIDER_REJECTED), socialResultOf("ERROR_INVALID_CREDENTIAL"))
+        assertEquals(AuthResult.Failure(AuthFailure.PROVIDER_REJECTED), socialResultOf("17004"))
+        assertEquals(AuthResult.Failure(AuthFailure.NETWORK), socialResultOf("17020"))
+        assertEquals(AuthResult.Failure(AuthFailure.EMAIL_IN_USE), socialResultOf("17012"))
+    }
+
     @Test
     fun unknownCodesAreUnknown() {
         assertEquals(AuthFailure.UNKNOWN, authFailureOf("SOMETHING_NEW"))

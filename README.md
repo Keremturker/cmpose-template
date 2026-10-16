@@ -25,8 +25,9 @@ Android Studio's bundled JDK (JBR 21) works as is.
 
 - **Android:** `./gradlew :androidApp:installDebug`, or run `androidApp` from Android Studio.
 - **iOS:** open `iosApp/iosApp.xcodeproj` in Xcode and run the `iosApp` scheme on a simulator.
-  To run on a device, set your Apple team ID as `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`;
-  it is also appended to the bundle ID, so each team signs its own ID.
+  To run on a device, set your Apple team ID as `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`.
+  It only picks the signing team: the bundle ID stays `PRODUCT_BUNDLE_IDENTIFIER`, the ID to register in Firebase
+  and App Store Connect.
 
 ## Checks
 
