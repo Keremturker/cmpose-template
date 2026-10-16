@@ -168,7 +168,8 @@ Plain HTTP to these addresses is allowed in debug builds only (`androidApp/src/d
 - `iosApp/iosApp/GoogleService-Info.plist` (the same page, your iOS app). The build copies it into the app only when
   it exists. With it, also set `GOOGLE_REVERSED_CLIENT_ID` in `iosApp/Configuration/Config.xcconfig` to the
   plist's `REVERSED_CLIENT_ID`: Google sign-in on iOS crashes when the plist is there and that value is empty, so set
-  both together.
+  both together. Firebase keeps the session in the keychain, which needs a signed build, on the simulator too: an
+  unsigned one (`CODE_SIGNING_ALLOWED=NO`) fails every sign-in with a keychain error (17995).
 - The server's `.local-server/config.properties` takes the same project's id (`firebaseProjectId`).
 
 Without the Firebase files the app still builds, its tests pass and it starts: the sign-in screen says that Firebase is

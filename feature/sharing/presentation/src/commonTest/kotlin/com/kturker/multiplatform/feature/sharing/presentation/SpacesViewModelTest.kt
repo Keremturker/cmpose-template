@@ -86,6 +86,36 @@ class SpacesViewModelTest {
         assertFalse(state.canLeave(personal))
     }
 
+    // An invite accepted over this screen selects the joined space, which the loaded list does not have yet
+    @Test
+    fun aSelectedSpaceMissingFromTheListReloadsIt() = runTest {
+        repository.listResult = RestResult.Success(listOf(owned, personal))
+        val viewModel = viewModel()
+        advanceUntilIdle()
+        repository.listResult = RestResult.Success(listOf(owned, joined, personal))
+        log.clear()
+
+        selectedSpace.current.value = joined
+        advanceUntilIdle()
+
+        assertEquals(listOf("list"), log)
+        assertEquals(listOf(personal, owned, joined), viewModel.state.value.spaces)
+        assertEquals("joined", viewModel.state.value.selectedId)
+    }
+
+    @Test
+    fun aSelectedSpaceAlreadyInTheListDoesNotReload() = runTest {
+        val viewModel = viewModel()
+        advanceUntilIdle()
+        log.clear()
+
+        selectedSpace.current.value = owned
+        advanceUntilIdle()
+
+        assertEquals(emptyList(), log)
+        assertEquals("owned", viewModel.state.value.selectedId)
+    }
+
     @Test
     fun selectingASpaceSelectsIt() = runTest {
         val viewModel = viewModel()

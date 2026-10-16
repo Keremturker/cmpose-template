@@ -23,7 +23,8 @@ import org.koin.core.annotation.Provided
 /**
  * The user's spaces: switching the selected one, creating one, and renaming, deleting (owner) or leaving
  * (member) one. Each change reloads the list; deleting, leaving and renaming also refresh [SelectedSpace], which
- * falls back to the personal space when the selected one is gone.
+ * falls back to the personal space when the selected one is gone. A selected space the list does not have
+ * (joined through an invite meanwhile) reloads the list.
  */
 @KoinViewModel
 internal class SpacesViewModel(
@@ -42,7 +43,12 @@ internal class SpacesViewModel(
 
     init {
         viewModelScope.launch {
-            selectedSpace.current.collect { space -> _state.update { it.copy(selectedId = space?.id) } }
+            selectedSpace.current.collect { space ->
+                _state.update { it.copy(selectedId = space?.id) }
+                // A space joined over this screen (an accepted invite) is selected before this list has it
+                val state = _state.value
+                if (space != null && !state.loading && state.spaces.none { it.id == space.id }) load()
+            }
         }
         viewModelScope.launch { load() }
     }
